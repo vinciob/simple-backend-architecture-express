@@ -107,6 +107,13 @@ POST /api/auth/login
 GET  /api/auth/me
 ```
 
+### Users
+
+```http
+PATCH  /api/users/me
+DELETE /api/users/me
+```
+
 ### Todos
 
 ```http
