@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+// Validate required environment variables
 const requiredEnvs = ['PORT', 'DB_URI', 'JWT_SECRET'] as const
 
 requiredEnvs.forEach((envName) => {

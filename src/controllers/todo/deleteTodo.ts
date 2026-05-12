@@ -12,9 +12,10 @@ const TodoParamsZ = z.object({
     todoId: ObjectIdHexZ,
 })
 
-export const deleteTodo = async (req: Request, res: Response): Promise<void> => {
+export const deleteTodo = async (req: Request, res: Response) => {
     const user = req.user as AuthUser
 
+    // Validate todo id
     const validateParams = TodoParamsZ.safeParse(req.params)
     if (!validateParams.success) {
         const error = z.treeifyError(validateParams.error)
@@ -22,6 +23,7 @@ export const deleteTodo = async (req: Request, res: Response): Promise<void> => 
         return
     }
 
+    // Delete todo
     try {
         const deletedTodo = await Todo.findOneAndDelete({
             _id: validateParams.data.todoId,

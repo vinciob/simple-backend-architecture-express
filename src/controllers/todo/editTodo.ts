@@ -12,9 +12,10 @@ const TodoParamsZ = z.object({
     todoId: ObjectIdHexZ,
 })
 
-export const editTodo = async (req: Request, res: Response): Promise<void> => {
+export const editTodo = async (req: Request, res: Response) => {
     const user = req.user as AuthUser
 
+    // Validate todo id
     const validateParams = TodoParamsZ.safeParse(req.params)
     if (!validateParams.success) {
         const error = z.treeifyError(validateParams.error)
@@ -22,6 +23,7 @@ export const editTodo = async (req: Request, res: Response): Promise<void> => {
         return
     }
 
+    // Validate todo fields
     const validateTodo = TodoUpdateZ.safeParse(req.body)
     if (!validateTodo.success) {
         const error = z.treeifyError(validateTodo.error)
@@ -38,6 +40,7 @@ export const editTodo = async (req: Request, res: Response): Promise<void> => {
         return
     }
 
+    // Edit todo
     const todo = await Todo.findOneAndUpdate(
         { _id: validateParams.data.todoId, user: user._id },
         validateTodo.data,
@@ -49,6 +52,7 @@ export const editTodo = async (req: Request, res: Response): Promise<void> => {
         return
     }
 
+    // Prepare todo output
     const outputTodo = TodoOutputZ.safeParse(todo.toObject())
     if (!outputTodo.success) {
         res.status(500).json({ message: 'Error preparing todo output' })

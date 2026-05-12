@@ -1,7 +1,8 @@
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import type { NextFunction, Request, Response } from 'express'
-
+// Config
 import { env } from '../config/env.js'
+// Models
 import { User } from '../entities/user.entity.js'
 
 type AccessTokenPayload = JwtPayload & {
@@ -16,6 +17,7 @@ export type AuthUser = {
     lastName: string
 }
 
+// Extend Express Request to include user information
 declare global {
     namespace Express {
         interface Request {
@@ -28,19 +30,21 @@ export const validateToken = async (
     req: Request,
     res: Response,
     next: NextFunction,
-): Promise<void> => {
+) => {
     const authorization = req.headers.authorization
     if (!authorization) {
         res.status(401).json({ message: 'Unauthorized: no token' })
         return
     }
 
+    // get token from header
     const token = authorization.split(' ')[1]
     if (!token) {
         res.status(401).json({ message: 'Unauthorized: no token' })
         return
     }
 
+    // Verify token and attach user info to request
     try {
         const decoded = jwt.verify(token, env.jwtSecret) as AccessTokenPayload
         const userId = decoded.user_id || decoded.userId

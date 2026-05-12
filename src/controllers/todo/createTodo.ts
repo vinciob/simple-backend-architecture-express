@@ -7,9 +7,10 @@ import { logger } from '../../lib/logger.js'
 // Types
 import type { AuthUser } from '../../middleware/validateToken.js'
 
-export const createTodo = async (req: Request, res: Response): Promise<void> => {
+export const createTodo = async (req: Request, res: Response) => {
     const user = req.user as AuthUser
 
+    // Validate todo fields
     const validateTodo = TodoCreateZ.safeParse(req.body)
     if (!validateTodo.success) {
         const error = z.treeifyError(validateTodo.error)
@@ -21,6 +22,7 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
         return
     }
 
+    // Create todo
     let newTodo
     try {
         newTodo = await Todo.create({ ...validateTodo.data, user: user._id })
@@ -30,6 +32,7 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
         return
     }
 
+    // Prepare todo output
     const outputTodo = TodoOutputZ.safeParse(newTodo.toObject())
     if (!outputTodo.success) {
         res.status(500).json({ message: 'Error preparing todo output' })

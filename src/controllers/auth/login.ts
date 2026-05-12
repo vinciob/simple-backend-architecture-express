@@ -7,6 +7,7 @@ import { comparePassword, generateUserToken } from '../../lib/authUtils.js'
 import { logger } from '../../lib/logger.js'
 
 export const loginUser = async (req: Request, res: Response) => {
+    // Validate input
     const validateLogin = UserLoginZ.safeParse(req.body)
     if (!validateLogin.success) {
         const error = z.treeifyError(validateLogin.error)
@@ -15,8 +16,11 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 
     const { email, password } = validateLogin.data
+
+    // Find user by email
     const user = await User.findOne({ email }).select('+password')
 
+    // Check if user exists and is active
     if (!user) {
         res.status(401).json({ message: 'Invalid email or password' })
         return
@@ -26,12 +30,14 @@ export const loginUser = async (req: Request, res: Response) => {
         return
     }
 
+    // Compare passwords
     const isPasswordValid = await comparePassword(password, user.password)
     if (!isPasswordValid) {
         res.status(401).json({ message: 'Invalid email or password' })
         return
     }
 
+    // Validate user output
     const outputUser = UserOutputZ.safeParse(user.toObject())
     if (!outputUser.success) {
         logger('User output validation error', 'error')
@@ -39,6 +45,7 @@ export const loginUser = async (req: Request, res: Response) => {
         return
     }
 
+    // Generate user token
     const token = generateUserToken(user._id.toString())
     res.status(200).json({ user: outputUser.data, token })
 }

@@ -1,10 +1,15 @@
 import mongoose, { type Model } from 'mongoose'
 import z from 'zod'
-
+// Utils
 import { ObjectIdZ } from '../lib/validateObjectId.js'
 
+// User Types
 export const userSexValues = ['male', 'female', 'other'] as const
 export type TUserSex = (typeof userSexValues)[number]
+
+//////////////////////
+// MONGOOSE SCHEMA //
+////////////////////
 
 const userSchema = new mongoose.Schema({
     firstName: { type: String, required: true, trim: true },
@@ -15,6 +20,10 @@ const userSchema = new mongoose.Schema({
     phone: { type: String },
     isActive: { type: Boolean, default: true },
 }, { timestamps: true })
+
+/////////////////
+// ZOD SCHEMA //
+///////////////
 
 const UserZ = z.object({
     firstName: z.string().min(2).max(100),
@@ -37,6 +46,7 @@ export const UserLoginZ = UserZ.pick({
     password: true,
 })
 
+// Input validation schemas
 export const UserCreateZ = UserZ.pick({
     firstName: true,
     lastName: true,
@@ -46,6 +56,7 @@ export const UserCreateZ = UserZ.pick({
     phone: true,
 })
 
+// For updates, all fields are optional
 export const UserUpdateZ = UserZ.pick({
     firstName: true,
     lastName: true,
@@ -54,6 +65,7 @@ export const UserUpdateZ = UserZ.pick({
     isActive: true,
 }).partial()
 
+// Output schema (exclude password and __v, include _id)
 export const UserOutputZ = UserZ.omit({
     password: true,
     __v: true,
@@ -61,13 +73,20 @@ export const UserOutputZ = UserZ.omit({
     _id: ObjectIdZ,
 })
 
+// Export TypeScript types
 export type TUser = z.infer<typeof UserZ>
 export type TCreateUser = z.infer<typeof UserCreateZ>
 export type TLoginUser = z.infer<typeof UserLoginZ>
 export type TUpdateUser = z.infer<typeof UserUpdateZ>
 export type TUserOutput = z.infer<typeof UserOutputZ>
 
+/////////////////////
+// MONGOOSE MODEL //
+///////////////////
+
+// TypeScript interfaces for Mongoose
 export interface UserDoc extends mongoose.Document, TUser {}
 export interface UserModel extends Model<UserDoc> {}
 
+// Create and export the Mongoose model
 export const User = mongoose.model<UserDoc, UserModel>('User', userSchema)

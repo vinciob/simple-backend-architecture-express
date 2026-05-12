@@ -7,9 +7,10 @@ import { logger } from '../../lib/logger.js'
 // Types
 import type { AuthUser } from '../../middleware/validateToken.js'
 
-export const deleteMe = async (req: Request, res: Response): Promise<void> => {
+export const deleteMe = async (req: Request, res: Response) => {
     const user = req.user as AuthUser
 
+    // Delete user and related todos
     try {
         const deletedUser = await User.findByIdAndDelete(user._id)
         if (!deletedUser) {

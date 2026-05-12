@@ -7,9 +7,10 @@ import { logger } from '../../lib/logger.js'
 // Types
 import type { AuthUser } from '../../middleware/validateToken.js'
 
-export const editMe = async (req: Request, res: Response): Promise<void> => {
+export const editMe = async (req: Request, res: Response) => {
     const user = req.user as AuthUser
 
+    // Validate user fields
     const validateUser = UserUpdateZ.safeParse(req.body)
     if (!validateUser.success) {
         const error = z.treeifyError(validateUser.error)
@@ -26,6 +27,7 @@ export const editMe = async (req: Request, res: Response): Promise<void> => {
         return
     }
 
+    // Edit user
     const updatedUser = await User.findByIdAndUpdate(
         user._id,
         validateUser.data,
@@ -37,6 +39,7 @@ export const editMe = async (req: Request, res: Response): Promise<void> => {
         return
     }
 
+    // Prepare user output
     const outputUser = UserOutputZ.safeParse(updatedUser.toObject())
     if (!outputUser.success) {
         res.status(500).json({ message: 'Error preparing user output' })
