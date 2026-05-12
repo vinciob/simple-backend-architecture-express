@@ -1,0 +1,40 @@
+{
+  "name": "simple-backend-architecture-express",
+  "version": "1.0.0",
+  "description": "Express implementation of the `simple-backend-architecture-showcase` project.",
+  "homepage": "https://github.com/vinciob/simple-backend-architecture-express#readme",
+  "bugs": {
+    "url": "https://github.com/vinciob/simple-backend-architecture-express/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vinciob/simple-backend-architecture-express.git"
+  },
+  "license": "MIT",
+  "author": "Vincenzo Brasca",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "ts-node src/server.ts",
+    "build": "tsc",
+    "dev": "tsx watch src/server.ts"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.6.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.7.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}
