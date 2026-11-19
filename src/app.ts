@@ -1,55 +1,52 @@
-// Express server setup
-import cors from 'cors'
-import express from 'express'
-// Config and Utils
-import { env } from './config/env.js'
-import { logger } from './lib/logger.js'
-// Routes
-import { authRoutes } from './routes/auth.js'
-import { todoRoutes } from './routes/todo.js'
-import { userRoutes } from './routes/user.js'
-// Types
-import type { ErrorRequestHandler, Express, Request, Response } from 'express'
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import mongoose from "mongoose";
+import { env } from "./config/env.js";
+import { AppError, errorHandler } from "./shared/errorHandler.js";
+// import { authRoutes } from "./modules/auth/auth.routes.js";
+// import { taskRoutes } from "./modules/tasks/task.routes.js";
+// import { userRoutes } from "./modules/users/users.routes.js";
 
-export const buildServer = (): Express => {
-    // Create Express instance
-    const app = express()
+/**
+ * Builds and configures the Express application.
+ * Does not open a port or connect to MongoDB.
+ */
+export function buildApp() {
+  const app = express();
+  app.disable("x-powered-by");
 
-    // Register middleware
-    app.use(express.json())
-    app.use(express.urlencoded({ extended: true }))
-    app.use(cors({
-        origin: env.feUrl,
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    }))
+  // Enable CORS and parse JSON and cookies for incoming requests.
+  app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
 
-    // Health check route
-    app.get('/health', (_req: Request, res: Response) => {
-        res.status(200).json({ status: 'ok' })
-    })
+  // Parse JSON and cookies for incoming requests.
+  app.use(express.json());
 
-    // Register routes
-    app.use('/api/auth', authRoutes)
-    app.use('/api/users', userRoutes)
-    app.use('/api/todos', todoRoutes)
+  // Parse cookies for incoming requests.
+  app.use(cookieParser());
 
-    // Global not found handler
-    app.use((_req: Request, res: Response) => {
-        res.status(404).json({ message: 'Route not found' })
-    })
+  // Health check endpoints.
+  app.get("/health", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+  app.get("/health/db", async (_req, res) => {
+    const db = mongoose.connection.db;
+    if (!db) throw new AppError(503, "Database unavailable");
+    await db.command({ ping: 1 });
+    res.json({ status: "ok", database: "mongodb" });
+  });
 
-    // Global error handler
-    const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
-        logger(error.stack || error.message, 'error')
-        const isProduction = env.nodeEnv === 'production'
-        res.status(500).json({
-            message: isProduction ? 'Internal Server Error' : error.message,
-        })
-    }
+  // Application routes.
+  // app.use("/users", userRoutes);
+  // app.use("/auth", authRoutes);
+  // app.use("/tasks", taskRoutes);
 
-    app.use(errorHandler)
+  // Handle unknown routes.
+  app.use((_req, _res) => {
+    throw new AppError(404, "Route not found");
+  });
 
-    // Return the Express instance
-    return app
+  // Error handling middleware.
+  app.use(errorHandler);
+  return app;
 }
