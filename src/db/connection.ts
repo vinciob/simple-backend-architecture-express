@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import { env } from "../config/env.js";
-// import { Session } from "../modules/auth/session.entity.js";
-// import { Task } from "../modules/tasks/task.entity.js";
-// import { User } from "../modules/users/user.entity.js";
+import { Session } from "../modules/auth/session.entity.js";
+import { Task } from "../modules/tasks/task.entity.js";
+import { User } from "../modules/users/user.entity.js";
 
 /**
  * Establishes a connection to the MongoDB database using Mongoose.
@@ -14,11 +14,13 @@ export async function connectDB() {
     serverSelectionTimeoutMS: 5000,
     autoIndex: false,
   });
+
   // Ensure unique, ownership and TTL indexes exist before accepting requests.
-  // await Promise.all([
-  //   User.createIndexes(),
-  //   Task.createIndexes(),
-  //   Session.createIndexes(),
-  // ]);
+  // this block exists because autoindex is set to false in the connection options.
+  await Promise.all([
+    User.createIndexes(),
+    Task.createIndexes(),
+    Session.createIndexes(),
+  ]);
   console.info("MongoDB connected");
 }
