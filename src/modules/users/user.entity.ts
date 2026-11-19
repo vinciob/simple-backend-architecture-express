@@ -67,14 +67,19 @@ userSchema.index({ email: 1 }, { unique: true });
 // Create and export the Mongoose model for the User entity.
 export const User = model<UserData>("User", userSchema);
 
-// Explicit response fields keep password hashes and database internals private.
-// export function toUserResponse(
-//   user: UserData & { _id: Types.ObjectId },
-// ): UserResponse {
-//   return {
-//     id: user._id.toHexString(),
-//     name: user.name,
-//     email: user.email,
-//     createdAt: user.createdAt.toISOString(),
-//   };
-// }
+/**
+ * Converts a user data object from the database into a user response object suitable for sending to clients.
+ * @param user The user data object containing database fields.
+ * @returns The user response object with safe fields for client consumption.
+ */
+
+export function toUserResponse(
+  user: UserData & { _id: Types.ObjectId },
+): UserResponse {
+  return {
+    id: user._id.toHexString(),
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt.toISOString(),
+  };
+}
