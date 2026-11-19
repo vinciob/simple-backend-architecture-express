@@ -4,9 +4,9 @@ import express from "express";
 import mongoose from "mongoose";
 import { env } from "./config/env.js";
 import { AppError, errorHandler } from "./shared/errorHandler.js";
-// import { authRoutes } from "./modules/auth/auth.routes.js";
-// import { taskRoutes } from "./modules/tasks/task.routes.js";
-// import { userRoutes } from "./modules/users/users.routes.js";
+import { authRoutes } from "./modules/auth/auth.routes.js";
+import { taskRoutes } from "./modules/tasks/task.routes.js";
+import { userRoutes } from "./modules/users/users.routes.js";
 
 /**
  * Builds and configures the Express application.
@@ -37,9 +37,9 @@ export function buildApp() {
   });
 
   // Application routes.
-  // app.use("/users", userRoutes);
-  // app.use("/auth", authRoutes);
-  // app.use("/tasks", taskRoutes);
+  app.use("/users", userRoutes);
+  app.use("/auth", authRoutes);
+  app.use("/tasks", taskRoutes);
 
   // Handle unknown routes.
   app.use((_req, _res) => {
